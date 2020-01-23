@@ -80,7 +80,10 @@ app.post("/buildPage", (req, res) => {
   // if req doesn't have a valid pageName
   if (!pageName) {
     pageName = shortid.generate() + ".html";
-    db.push({ name: pageName, date: Date.now() });
+    db.push({
+      name: pageName,
+      date: Date.now()
+    });
     fs.writeFile(dbPath, JSON.stringify(db), err => {
       err ? console.log("Writing new file in db failed: ", err) : true;
     });
@@ -99,6 +102,10 @@ app.post("/buildPage", (req, res) => {
     );
   }
 
+  // if publicFolder dir not exists, make it
+  if (!fs.existsSync(publicFolder)) {
+    fs.mkdirSync(publicFolder);
+  }
   fs.writeFileSync(publicFolder + "/" + pageName, htmlFileContent);
   res.send(
     JSON.stringify({
