@@ -31,7 +31,7 @@ const time = new Date();
 try {
   fs.utimesSync(dbPath, time, time);
 } catch (err) {
-  fs.closeSync(fs.openSync(dbFile, "w"));
+  fs.closeSync(fs.openSync(dbPath, "w"));
 }
 
 // read db on server startup
