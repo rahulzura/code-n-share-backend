@@ -20,6 +20,19 @@ app.use(serveStatic("pages", { index: false }));
 const publicFolder = "pages";
 const port = process.env.NODE_ENV === "production" ? process.env.PORT : 3000;
 let db;
+const dbPath = "logs/db.json";
+
+if (!fs.existsSync("logs/")) {
+  fs.mkdirSync("logs");
+}
+
+// touch db
+const time = new Date();
+try {
+  fs.utimesSync(dbPath, time, time);
+} catch (err) {
+  fs.closeSync(fs.openSync(dbFile, "w"));
+}
 
 // read db on server startup
 fs.readFile("logs/db.json", "utf8", (err, data) => {
