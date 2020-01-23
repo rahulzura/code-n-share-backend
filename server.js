@@ -22,16 +22,24 @@ const port = process.env.NODE_ENV === "production" ? process.env.PORT : 3000;
 let db;
 const dbPath = "logs/db.json";
 
+// if logs dir not exists, make it
 if (!fs.existsSync("logs/")) {
   fs.mkdirSync("logs");
 }
 
-// touch db
+// touch dbFile
 const time = new Date();
 try {
   fs.utimesSync(dbPath, time, time);
 } catch (err) {
   fs.closeSync(fs.openSync(dbPath, "w"));
+}
+
+// check dbFile has valid JSON
+try {
+  JSON.parse(fs.readFileSync(dbPath));
+} catch (err) {
+  fs.writeFileSync(dbPath, "[]");
 }
 
 // read db on server startup
@@ -73,13 +81,10 @@ app.post("/buildPage", (req, res) => {
   if (!pageName) {
     pageName = shortid.generate() + ".html";
     db.push({ name: pageName, date: Date.now() });
-    fs.writeFile("logs/db.json", JSON.stringify(db), err => {
+    fs.writeFile(dbPath, JSON.stringify(db), err => {
       err ? console.log("Writing new file in db failed: ", err) : true;
     });
-    fs.appendFileSync(
-      "logs/db.log",
-      "Added " + pageName + " at " + new Date() + "\n"
-    );
+    fs.appendFileSync(dbPath, "Added " + pageName + " at " + new Date() + "\n");
   } else {
     // find the page
     db.find((page, index, arr) => {
@@ -89,7 +94,7 @@ app.post("/buildPage", (req, res) => {
       }
     });
     fs.appendFileSync(
-      "logs/db.log",
+      dbPath,
       "Modified " + pageName + " at " + new Date() + "\n"
     );
   }
